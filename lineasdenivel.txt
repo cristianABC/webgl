@@ -1,0 +1,70 @@
+<vertex>
+	#version 300 es
+	layout(location=0) in vec3 a_position;
+	layout(location=2) in vec2 a_uv;
+
+	uniform UBOTransform{
+		mat4 matProjection;
+		mat4 matCameraView;
+		vec3 posCamera;
+		float fTime;
+		vec2 screenRes;
+	};
+
+	uniform mat4 uModalMatrix;
+
+	out vec3 v_position;
+
+	void main(void){
+		vec3 position	= a_position;
+		v_position = position;		
+		gl_Position = matProjection * matCameraView * uModalMatrix * vec4(position, 1.0);
+	}
+</vertex>
+<fragment>
+	#version 300 es
+	precision mediump float;
+
+	in vec3 v_position;
+	out vec4 FragColor;
+
+	const float maxY		= 10.0;
+	const float gridSize	= 0.2;
+	const float lineWidth	= 1.0; 
+	
+
+	const vec4 landColor = vec4(1.0, 1.0, 1.0, 1.0); 
+	const vec4 lineColor = vec4(0.0, 0.0, 0.0, 1.0); 
+	
+	void main(void){
+		float gridPosY		= v_position.y / gridSize;				
+		float gridFractionY 	= fract(gridPosY);						
+		float gridFractionYA	= abs( gridFractionY -0.5 );				
+		float gridDeriY		= fwidth( gridPosY );					
+		float colorcurvanivel = clamp( gridFractionYA / gridDeriY , 0.0 ,1.0);
+		
+		FragColor = mix(
+			lineColor,
+			landColor,
+			colorcurvanivel
+		);
+	}
+</fragment>
+
+
+<shader>
+{
+	"name" : "TestShader",
+	"useModelMatrix" : true,
+	"useUBOTransform" : true,
+	"uniforms" : [ 
+
+	]
+}
+</shader>
+	
+<materials>[ 
+	{ "name":"MatTestShader", "useBlending":true, "useSampleAlphaCoverage":false, 
+		"uniforms":[
+		]} 
+]</materials>
